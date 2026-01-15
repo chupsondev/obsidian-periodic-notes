@@ -1,7 +1,7 @@
 import type moment from "moment";
-import { addIcon, App, Plugin } from "obsidian";
+import { addIcon, App, Plugin, ObsidianProtocolData } from "obsidian";
 
-import { getCommands, openPeriodicNote, periodConfigs } from "./commands";
+import { getCommands, openPeriodicNote, openPeriodicNoteInNewTab, periodConfigs } from "./commands";
 import { SETTINGS_UPDATED } from "./events";
 import {
   calendarDayIcon,
@@ -45,6 +45,10 @@ export default class PeriodicNotesPlugin extends Plugin {
     this.addSettingTab(new PeriodicNotesSettingsTab(this.app, this));
 
     this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
+
+    this.registerObsidianProtocolHandler("daily", async (_params: ObsidianProtocolData) => {
+        openPeriodicNoteInNewTab("daily", window.moment())
+    });
 
     addIcon("calendar-day", calendarDayIcon);
     addIcon("calendar-week", calendarWeekIcon);

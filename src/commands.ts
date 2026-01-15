@@ -92,6 +92,32 @@ export async function openPeriodicNote(
   await openFile(periodicNote, inNewSplit);
 }
 
+export async function openPeriodicNoteInNewTab(
+  periodicity: IPeriodicity,
+  date: Moment,
+): Promise<void> {
+  const config = periodConfigs[periodicity];
+  const startOfPeriod = date.clone().startOf(config.unitOfTime);
+
+  let allNotes: Record<string, TFile>;
+  try {
+    allNotes = config.getAllNotes();
+  } catch (err) {
+    console.error(`failed to find your ${periodicity} notes folder`, err);
+    new Notice(`Failed to find your ${periodicity} notes folder`);
+    return;
+  }
+
+  let periodicNote = config.getNote(startOfPeriod, allNotes);
+  if (!periodicNote) {
+    periodicNote = await config.createNote(startOfPeriod);
+  }
+
+  const { workspace } = window.app;
+  const leaf = workspace.getLeaf(true);
+  await leaf.openFile(periodicNote, { active: true });
+}
+
 function getActiveFile(): TFile | null {
   const { workspace } = window.app;
   const activeView = workspace.getActiveViewOfType(MarkdownView);
