@@ -1,5 +1,5 @@
 import type { Moment } from "moment";
-import { Command, MarkdownView, Notice, TFile } from "obsidian";
+import { Command, MarkdownView, Notice, TFile, WorkspaceLeaf, FileView } from "obsidian";
 import {
   createDailyNote,
   createMonthlyNote,
@@ -114,6 +114,18 @@ export async function openPeriodicNoteInNewTab(
   }
 
   const { workspace } = window.app;
+  let alreadyOpen = false;
+  workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
+    const view = leaf.view;
+    if (!(view instanceof FileView))
+      return;
+    if (view.file === periodicNote) {
+      alreadyOpen = true;
+      workspace.setActiveLeaf(leaf, true);
+    }
+  })
+  if (alreadyOpen)
+    return;
   const leaf = workspace.getLeaf(true);
   await leaf.openFile(periodicNote, { active: true });
 }
