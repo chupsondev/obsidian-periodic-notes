@@ -1,5 +1,5 @@
 import type { Moment } from "moment";
-import { addIcon, Plugin, TFile, type ObsidianProtocolData } from "obsidian";
+import { addIcon, Plugin, TFile, type ObsidianProtocolData, type WorkspaceLeaf, FileView } from "obsidian";
 import { writable, type Writable } from "svelte/store";
 
 import { PeriodicNotesCache, type PeriodicNoteCachedMetadata } from "./cache";
@@ -112,6 +112,18 @@ export default class PeriodicNotesPlugin extends Plugin {
             file = await this.createPeriodicNote("day", window.moment());
         }
 
+        let alreadyOpen = false;
+        workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
+          const view = leaf.view;
+          if (!(view instanceof FileView))
+            return;
+          if (view.file === file) {
+            alreadyOpen = true;
+            workspace.setActiveLeaf(leaf, true);
+          }
+        })
+        if (alreadyOpen)
+          return;
         const leaf = workspace.getLeaf(true);
         await leaf.openFile(file, { active: true });
     });
