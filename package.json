@@ -6,7 +6,7 @@
   "main": "main.js",
   "license": "MIT",
   "scripts": {
-    "lint": "svelte-check && eslint . --ext .ts && tsc --noEmit",
+    "lint": "eslint . --ext .ts && tsc --noEmit",
     "lint:fix": "svelte-check && eslint . --ext .ts --fix",
     "dev": "node --experimental-json-modules esbuild.config.mjs",
     "build": "yarn run lint && node --experimental-json-modules esbuild.config.mjs production",

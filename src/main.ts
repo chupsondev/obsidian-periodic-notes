@@ -1,5 +1,5 @@
 import type { Moment } from "moment";
-import { addIcon, Plugin, TFile } from "obsidian";
+import { addIcon, Plugin, TFile, type ObsidianProtocolData } from "obsidian";
 import { writable, type Writable } from "svelte/store";
 
 import { PeriodicNotesCache, type PeriodicNoteCachedMetadata } from "./cache";
@@ -25,7 +25,6 @@ import {
   DEFAULT_PERIODIC_CONFIG,
 } from "./settings";
 import {
-  configureGlobalMomentLocale,
   initializeLocaleConfigOnce,
 } from "./settings/localization";
 import {
@@ -100,6 +99,21 @@ export default class PeriodicNotesPlugin extends Plugin {
         new NLDNavigator(this.app, this).open();
       },
       hotkeys: [],
+    });
+
+    this.registerObsidianProtocolHandler("daily", async (_params: ObsidianProtocolData) => {
+        const { workspace } = this.app;
+        let file = this.cache.getPeriodicNote(
+            this.calendarSetManager.getActiveId(),
+            "day",
+            window.moment(),
+        );
+        if (!file) {
+            file = await this.createPeriodicNote("day", window.moment());
+        }
+
+        const leaf = workspace.getLeaf(true);
+        await leaf.openFile(file, { active: true });
     });
 
     this.addCommand({
